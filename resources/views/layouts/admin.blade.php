@@ -24,8 +24,8 @@
                     <div class="flex">
                         <!-- Logo -->
                         <div class="shrink-0 flex items-center">
-                            <a href="{{ route('admin.dashboard') }}" class="text-white font-bold text-xl">
-                                <img src="{{ asset('storage/pnzLogo.jpg') }}" alt="pnzLogo" class="h-9 w-auto" /> Admin
+                            <a href="{{ route('admin.dashboard') }}" class="text-white">
+                                <img src="{{ asset('storage/pnzLogo.jpg') }}" alt="Logo" class="h-9 w-auto" />
                             </a>
                         </div>
 
@@ -57,6 +57,9 @@
                             </x-nav-link>
                             <x-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')" class="text-white">
                                 {{ __('Settings') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('admin.social-links.index')" :active="request()->routeIs('admin.social-links.*')" class="text-white">
+                                {{ __('Social Links') }}
                             </x-nav-link>
                         </div>
                     </div>
@@ -136,6 +139,9 @@
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')" class="text-white">
                         {{ __('Settings') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.social-links.index')" :active="request()->routeIs('admin.social-links.*')" class="text-white">
+                        {{ __('Social Links') }}
                     </x-responsive-nav-link>
                 </div>
 

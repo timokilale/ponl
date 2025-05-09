@@ -78,7 +78,7 @@ class SettingController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'update_settings',
+            'activity_type' => 'update_settings',
             'description' => 'Updated system settings',
             'ip_address' => $request->ip(),
         ]);
@@ -116,7 +116,7 @@ class SettingController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'create_setting',
+            'activity_type' => 'create_setting',
             'description' => 'Created setting: ' . $request->key,
             'ip_address' => $request->ip(),
         ]);
@@ -150,7 +150,7 @@ class SettingController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'delete_setting',
+            'activity_type' => 'delete_setting',
             'description' => 'Deleted setting: ' . $settingKey,
             'ip_address' => request()->ip(),
         ]);

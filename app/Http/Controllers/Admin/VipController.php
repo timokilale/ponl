@@ -74,7 +74,7 @@ class VipController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'create_vip_level',
+            'activity_type' => 'create_vip_level',
             'description' => 'Created VIP level: ' . $vipLevel->name,
             'ip_address' => $request->ip(),
         ]);
@@ -141,7 +141,7 @@ class VipController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'update_vip_level',
+            'activity_type' => 'update_vip_level',
             'description' => 'Updated VIP level: ' . $vipLevel->name,
             'ip_address' => $request->ip(),
         ]);
@@ -180,7 +180,7 @@ class VipController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'delete_vip_level',
+            'activity_type' => 'delete_vip_level',
             'description' => 'Deleted VIP level: ' . $vipLevelName,
             'ip_address' => request()->ip(),
         ]);

@@ -101,7 +101,7 @@ class TaskCompletionController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'update_task_completion',
+            'activity_type' => 'update_task_completion',
             'description' => 'Updated task completion status to ' . $request->status,
             'ip_address' => $request->ip(),
         ]);
@@ -170,7 +170,7 @@ class TaskCompletionController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'approve_task_completion',
+            'activity_type' => 'approve_task_completion',
             'description' => 'Approved task completion for task: ' . $task->title,
             'ip_address' => $request->ip(),
         ]);
@@ -223,7 +223,7 @@ class TaskCompletionController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'reject_task_completion',
+            'activity_type' => 'reject_task_completion',
             'description' => 'Rejected task completion for task: ' . $task->title,
             'ip_address' => $request->ip(),
         ]);

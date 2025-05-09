@@ -111,7 +111,7 @@ class TaskController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'create_task',
+            'activity_type' => 'create_task',
             'description' => 'Created task: ' . $task->title,
             'ip_address' => $request->ip(),
         ]);
@@ -194,7 +194,7 @@ class TaskController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'update_task',
+            'activity_type' => 'update_task',
             'description' => 'Updated task: ' . $task->title,
             'ip_address' => $request->ip(),
         ]);
@@ -219,7 +219,7 @@ class TaskController extends Controller
             // Log the activity
             \App\Models\UserActivityLog::create([
                 'user_id' => auth()->id(),
-                'action' => 'deactivate_task',
+                'activity_type' => 'deactivate_task',
                 'description' => 'Deactivated task: ' . $task->title,
                 'ip_address' => request()->ip(),
             ]);
@@ -235,7 +235,7 @@ class TaskController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'delete_task',
+            'activity_type' => 'delete_task',
             'description' => 'Deleted task: ' . $taskTitle,
             'ip_address' => request()->ip(),
         ]);

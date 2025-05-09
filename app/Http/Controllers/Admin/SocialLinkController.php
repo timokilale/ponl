@@ -66,7 +66,7 @@ class SocialLinkController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'create_social_link',
+            'activity_type' => 'create_social_link',
             'description' => 'Created social link: ' . $socialLink->platform,
             'ip_address' => $request->ip(),
         ]);
@@ -112,7 +112,7 @@ class SocialLinkController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'update_social_link',
+            'activity_type' => 'update_social_link',
             'description' => 'Updated social link: ' . $socialLink->platform,
             'ip_address' => $request->ip(),
         ]);
@@ -135,7 +135,7 @@ class SocialLinkController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'delete_social_link',
+            'activity_type' => 'delete_social_link',
             'description' => 'Deleted social link: ' . $platform,
             'ip_address' => request()->ip(),
         ]);

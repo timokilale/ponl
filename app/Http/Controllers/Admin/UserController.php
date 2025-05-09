@@ -200,7 +200,7 @@ class UserController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'update_user',
+            'activity_type' => 'update_user',
             'description' => 'Updated user: ' . $user->username,
             'ip_address' => $request->ip(),
         ]);
@@ -233,7 +233,7 @@ class UserController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'deactivate_user',
+            'activity_type' => 'deactivate_user',
             'description' => 'Deactivated user: ' . $user->username,
             'ip_address' => request()->ip(),
         ]);

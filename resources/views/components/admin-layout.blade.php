@@ -24,8 +24,8 @@
                     <div class="flex">
                         <!-- Logo -->
                         <div class="shrink-0 flex items-center">
-                            <a href="{{ route('admin.dashboard') }}" class="text-white font-bold text-xl">
-                                <img src="{{ asset('storage/pnzLogo.jpg') }}" alt="pnzLogo" class="h-9 w-auto" /> Admin
+                            <a href="{{ route('admin.dashboard') }}" class="text-white">
+                                <img src="{{ asset('storage/pnzLogo.jpg') }}" alt="Logo" class="h-9 w-auto" />
                             </a>
                         </div>
 
@@ -55,9 +55,9 @@
                             <x-nav-link :href="route('admin.referrals.index')" :active="request()->routeIs('admin.referrals.*')" class="text-white">
                                 {{ __('Referrals') }}
                             </x-nav-link>
-                            <x-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')" class="text-white">
+                          <!--  <x-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')" class="text-white">
                                 {{ __('Settings') }}
-                            </x-nav-link>
+                            </x-nav-link>-->
                         </div>
                     </div>
 

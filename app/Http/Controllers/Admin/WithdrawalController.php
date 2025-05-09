@@ -151,7 +151,7 @@ class WithdrawalController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'update_withdrawal',
+            'activity_type' => 'update_withdrawal',
             'description' => 'Updated withdrawal status to ' . $request->status,
             'ip_address' => $request->ip(),
         ]);
@@ -211,7 +211,7 @@ class WithdrawalController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'approve_withdrawal',
+            'activity_type' => 'approve_withdrawal',
             'description' => 'Approved withdrawal for user: ' . $user->username,
             'ip_address' => $request->ip(),
         ]);
@@ -285,7 +285,7 @@ class WithdrawalController extends Controller
         // Log the activity
         \App\Models\UserActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'reject_withdrawal',
+            'activity_type' => 'reject_withdrawal',
             'description' => 'Rejected withdrawal for user: ' . $user->username,
             'ip_address' => $request->ip(),
         ]);
