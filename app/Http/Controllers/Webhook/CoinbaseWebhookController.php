@@ -7,6 +7,7 @@ use App\Models\PaymentIntent;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\PaymentSplitterService;
+use App\Services\VipService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -23,16 +24,26 @@ class CoinbaseWebhookController extends Controller
     protected $paymentSplitterService;
 
     /**
+     * @var VipService
+     */
+    protected $vipService;
+
+    /**
      * Create a new controller instance.
      *
      * @param \App\Services\CoinbaseService $coinbaseService
      * @param PaymentSplitterService $paymentSplitterService
+     * @param VipService $vipService
      * @return void
      */
-    public function __construct(\App\Services\CoinbaseService $coinbaseService, PaymentSplitterService $paymentSplitterService)
-    {
+    public function __construct(
+        \App\Services\CoinbaseService $coinbaseService,
+        PaymentSplitterService $paymentSplitterService,
+        VipService $vipService
+    ) {
         $this->coinbaseService = $coinbaseService;
         $this->paymentSplitterService = $paymentSplitterService;
+        $this->vipService = $vipService;
 
         // Middleware is now applied in the routes file
     }
@@ -200,6 +211,25 @@ class CoinbaseWebhookController extends Controller
                 'message' => "Your deposit of {$mainAmount} USDT has been confirmed and added to your balance.",
                 'type' => 'deposit'
             ]);
+
+            // Check and upgrade VIP level if needed
+            $vipUpgraded = $this->vipService->checkAndUpgradeVipLevel($user);
+
+            // If VIP level was upgraded, create a notification
+            if ($vipUpgraded) {
+                \App\Models\Notification::create([
+                    'user_id' => $user->id,
+                    'title' => 'VIP Level Upgraded',
+                    'message' => "Congratulations! Your VIP level has been upgraded to {$user->vipLevel->name} based on your current balance.",
+                    'type' => 'vip'
+                ]);
+
+                Log::info('User VIP level upgraded after deposit', [
+                    'user_id' => $user->id,
+                    'new_vip_level' => $user->vipLevel->name,
+                    'balance' => $user->balance
+                ]);
+            }
 
             \DB::commit();
 

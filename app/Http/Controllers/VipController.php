@@ -55,6 +55,9 @@ class VipController extends Controller
             $progress = min(100, max(0, $progress)); // Ensure progress is between 0 and 100
         }
 
-        return view('vip.index', compact('vipLevels', 'currentVipLevel', 'nextVipLevel', 'progress'));
+        // Get the auto-upgrade setting
+        $autoUpgradeEnabled = \App\Models\Setting::getValue('vip_auto_upgrade', 'true') === 'true';
+
+        return view('vip.index', compact('vipLevels', 'currentVipLevel', 'nextVipLevel', 'progress', 'autoUpgradeEnabled'));
     }
 }

@@ -97,6 +97,31 @@
                     <div class="mt-8">
                         <h3 class="text-lg font-medium mb-4">How to Increase Your VIP Level</h3>
                         <div class="bg-gray-100 p-4 rounded-lg">
+                            <div class="mb-4">
+                                <p class="font-medium mb-2">VIP Level Upgrade System:</p>
+                                @if($autoUpgradeEnabled)
+                                    <div class="flex items-center">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <svg class="mr-1.5 h-2 w-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
+                                                <circle cx="4" cy="4" r="3" />
+                                            </svg>
+                                            Automatic
+                                        </span>
+                                        <span class="ml-2 text-sm text-gray-600">Your VIP level will automatically increase as your balance grows.</span>
+                                    </div>
+                                @else
+                                    <div class="flex items-center">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <svg class="mr-1.5 h-2 w-2 text-yellow-400" fill="currentColor" viewBox="0 0 8 8">
+                                                <circle cx="4" cy="4" r="3" />
+                                            </svg>
+                                            Manual
+                                        </span>
+                                        <span class="ml-2 text-sm text-gray-600">VIP levels must be purchased separately. Contact support for details.</span>
+                                    </div>
+                                @endif
+                            </div>
+
                             <ul class="list-disc list-inside space-y-2">
                                 <li>Make deposits to increase your VIP level</li>
                                 <li>Higher VIP levels give you better rewards and more daily tasks</li>

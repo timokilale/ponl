@@ -13,6 +13,22 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::updated(function ($user) {
+            // Check if balance was updated
+            if ($user->isDirty('balance')) {
+                // Check and upgrade VIP level if needed
+                app(\App\Services\VipService::class)->checkAndUpgradeVipLevel($user);
+            }
+        });
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>

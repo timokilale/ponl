@@ -46,8 +46,8 @@
                                                 </span>
                                             @endif
                                         </label>
-                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}" 
-                                            value="{{ $setting->value }}" 
+                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}"
+                                            value="{{ $setting->value }}"
                                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     </div>
                                 @endforeach
@@ -68,8 +68,8 @@
                                                 </span>
                                             @endif
                                         </label>
-                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}" 
-                                            value="{{ $setting->value }}" 
+                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}"
+                                            value="{{ $setting->value }}"
                                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     </div>
                                 @endforeach
@@ -90,8 +90,8 @@
                                                 </span>
                                             @endif
                                         </label>
-                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}" 
-                                            value="{{ $setting->value }}" 
+                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}"
+                                            value="{{ $setting->value }}"
                                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     </div>
                                 @endforeach
@@ -112,8 +112,8 @@
                                                 </span>
                                             @endif
                                         </label>
-                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}" 
-                                            value="{{ $setting->value }}" 
+                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}"
+                                            value="{{ $setting->value }}"
                                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     </div>
                                 @endforeach
@@ -134,8 +134,8 @@
                                                 </span>
                                             @endif
                                         </label>
-                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}" 
-                                            value="{{ $setting->value }}" 
+                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}"
+                                            value="{{ $setting->value }}"
                                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     </div>
                                 @endforeach
@@ -156,9 +156,18 @@
                                                 </span>
                                             @endif
                                         </label>
-                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}" 
-                                            value="{{ $setting->value }}" 
-                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+
+                                        @if($setting->key === 'vip_auto_upgrade')
+                                            <select name="{{ $setting->key }}" id="{{ $setting->key }}"
+                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                <option value="true" {{ $setting->value === 'true' ? 'selected' : '' }}>Enabled - Auto-upgrade based on balance</option>
+                                                <option value="false" {{ $setting->value === 'false' ? 'selected' : '' }}>Disabled - Manual VIP level assignment only</option>
+                                            </select>
+                                        @else
+                                            <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}"
+                                                value="{{ $setting->value }}"
+                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
@@ -178,8 +187,8 @@
                                                 </span>
                                             @endif
                                         </label>
-                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}" 
-                                            value="{{ $setting->value }}" 
+                                        <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}"
+                                            value="{{ $setting->value }}"
                                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     </div>
                                 @endforeach
