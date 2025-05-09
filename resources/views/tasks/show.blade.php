@@ -46,34 +46,31 @@
                         <h3 class="text-lg font-medium mb-2">Your Task Status</h3>
                         <div class="bg-gray-100 p-4 rounded-lg">
                             <p>VIP Level: <span class="font-semibold">{{ $vipLevel->name }}</span></p>
-                            <p>Completed Tasks Today: <span class="font-semibold">{{ $completedTasksToday }} / {{ $dailyLimit }}</span></p>
+                            <p>Claimed Tasks Today: <span class="font-semibold">{{ $claimedTasksToday }} / {{ $dailyLimit }}</span></p>
+                            @if($isAlreadyClaimed)
+                                <p class="mt-2 text-green-600 font-semibold">You have already claimed this task. It will reset in {{ $activeClaim->expires_at->diffForHumans() }}.</p>
+                            @endif
                         </div>
                     </div>
 
-                    @if($canComplete)
+                    @if($isAlreadyClaimed)
+                        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded relative">
+                            <p>You have successfully claimed this task. You will be able to claim it again in {{ $activeClaim->expires_at->diffForHumans() }}.</p>
+                        </div>
+                    @elseif($canClaim)
                         <div class="bg-white rounded-lg border p-6">
-                            <h3 class="text-lg font-medium mb-4">Submit Task Completion</h3>
-                            <form action="{{ route('tasks.complete', $task) }}" method="POST">
+                            <h3 class="text-lg font-medium mb-4">Claim This Task</h3>
+                            <p class="mb-4">By claiming this task, you'll immediately receive the reward. You can claim this task again after 24 hours.</p>
+                            <form action="{{ route('tasks.claim', $task) }}" method="POST">
                                 @csrf
-                                <div class="mb-4">
-                                    <label for="proof" class="block text-sm font-medium text-gray-700 mb-1">Proof of Completion</label>
-                                    <textarea id="proof" name="proof" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Provide proof that you've completed this task as instructed..." required></textarea>
-                                    @error('proof')
-                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                    @enderror
-                                </div>
                                 <div class="flex items-center justify-end">
-                                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                        Submit Task
+                                    <button type="submit" class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        Claim Task ({{ number_format($task->reward, 2) }} USDT)
                                     </button>
                                 </div>
                             </form>
                         </div>
-                    @elseif(auth()->user()->balance < 30)
-                        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded relative">
-                            <p>You need a minimum balance of 30 USDT to complete tasks. Please <a href="{{ route('payment.deposit') }}" class="underline font-semibold">make a deposit</a> to continue.</p>
-                        </div>
-                    @else
+                    @elseif($claimedTasksToday >= $dailyLimit)
                         <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded relative">
                             <p>You have reached your daily task limit ({{ $dailyLimit }} tasks). Please come back tomorrow for more tasks.</p>
                         </div>

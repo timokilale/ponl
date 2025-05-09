@@ -30,7 +30,7 @@ class Transaction extends Model
      *
      * @var bool
      */
-    public $timestamps = true;
+    public $timestamps = false;
 
     /**
      * The attributes that should be cast.
@@ -59,6 +59,8 @@ class Transaction extends Model
     {
         if ($this->reference_type === 'task_completion') {
             return $this->belongsTo(TaskCompletion::class, 'reference_id');
+        } elseif ($this->reference_type === 'task_claim') {
+            return $this->belongsTo(TaskClaim::class, 'reference_id');
         } elseif ($this->reference_type === 'withdrawal') {
             return $this->belongsTo(Withdrawal::class, 'reference_id');
         } elseif ($this->reference_type === 'referral') {

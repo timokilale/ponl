@@ -32,16 +32,19 @@ class TaskController extends Controller
             ->orderBy('reward', 'desc')
             ->get();
 
-        // Get the user's completed tasks for today
+        // Get the user's claimed tasks for today
         $today = now()->startOfDay();
-        $completedTasksToday = \App\Models\TaskCompletion::where('user_id', $user->id)
+        $claimedTasksToday = \App\Models\TaskClaim::where('user_id', $user->id)
             ->where('created_at', '>=', $today)
             ->count();
+
+        // Get the user's active task claims
+        $activeClaimIds = $user->activeTaskClaims()->pluck('task_id')->toArray();
 
         // Get the user's VIP level details
         $vipLevel = $user->vipLevel;
 
-        return view('tasks.index', compact('tasks', 'completedTasksToday', 'vipLevel'));
+        return view('tasks.index', compact('tasks', 'claimedTasksToday', 'activeClaimIds', 'vipLevel'));
     }
 
     /**
@@ -66,19 +69,23 @@ class TaskController extends Controller
                 ->with('error', 'This task is no longer available.');
         }
 
-        // Get the user's completed tasks for today
+        // Get the user's claimed tasks for today
         $today = now()->startOfDay();
-        $completedTasksToday = \App\Models\TaskCompletion::where('user_id', $user->id)
+        $claimedTasksToday = \App\Models\TaskClaim::where('user_id', $user->id)
             ->where('created_at', '>=', $today)
             ->count();
+
+        // Check if the user has an active claim for this task
+        $activeClaim = $task->getActiveClaimForUser($user->id);
+        $isAlreadyClaimed = !is_null($activeClaim);
 
         // Get the user's VIP level details
         $vipLevel = $user->vipLevel;
 
         // Check if the user has reached their daily task limit
         $dailyLimit = $vipLevel->daily_tasks_limit;
-        $canComplete = $completedTasksToday < $dailyLimit && $user->balance >= 30;
+        $canClaim = !$isAlreadyClaimed && $claimedTasksToday < $dailyLimit;
 
-        return view('tasks.show', compact('task', 'completedTasksToday', 'vipLevel', 'dailyLimit', 'canComplete'));
+        return view('tasks.show', compact('task', 'claimedTasksToday', 'vipLevel', 'dailyLimit', 'canClaim', 'isAlreadyClaimed', 'activeClaim'));
     }
 }

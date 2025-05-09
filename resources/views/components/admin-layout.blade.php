@@ -55,9 +55,9 @@
                             <x-nav-link :href="route('admin.referrals.index')" :active="request()->routeIs('admin.referrals.*')" class="text-white">
                                 {{ __('Referrals') }}
                             </x-nav-link>
-                          <!--  <x-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')" class="text-white">
+                            <x-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')" class="text-white">
                                 {{ __('Settings') }}
-                            </x-nav-link>-->
+                            </x-nav-link>
                         </div>
                     </div>
 

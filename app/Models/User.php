@@ -79,6 +79,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the task claims for the user.
+     */
+    public function taskClaims()
+    {
+        return $this->hasMany(TaskClaim::class);
+    }
+
+    /**
+     * Get the active task claims for the user.
+     */
+    public function activeTaskClaims()
+    {
+        return $this->taskClaims()->where('expires_at', '>', now());
+    }
+
+    /**
      * Get the withdrawals for the user.
      */
     public function withdrawals()

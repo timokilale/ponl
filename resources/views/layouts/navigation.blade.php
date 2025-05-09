@@ -16,8 +16,11 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')">
+                    <x-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.index') || request()->routeIs('tasks.show')">
                         {{ __('Tasks') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('tasks.claims')" :active="request()->routeIs('tasks.claims')">
+                        {{ __('My Claims') }}
                     </x-nav-link>
                     <x-nav-link :href="route('payment.deposit')" :active="request()->routeIs('payment.deposit')">
                         {{ __('Deposit') }}
@@ -94,8 +97,11 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')">
+            <x-responsive-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.index') || request()->routeIs('tasks.show')">
                 {{ __('Tasks') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('tasks.claims')" :active="request()->routeIs('tasks.claims')">
+                {{ __('My Claims') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('payment.deposit')" :active="request()->routeIs('payment.deposit')">
                 {{ __('Deposit') }}

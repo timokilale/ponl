@@ -43,9 +43,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
 
-    // Task completion routes
+    // Task completion routes (legacy)
     Route::post('/tasks/{task}/complete', [TaskCompletionController::class, 'store'])->name('tasks.complete');
     Route::get('/tasks/completions', [TaskCompletionController::class, 'index'])->name('tasks.completions');
+
+    // Task claim routes
+    Route::post('/tasks/{task}/claim', [\App\Http\Controllers\TaskClaimController::class, 'claim'])->name('tasks.claim');
+    Route::get('/tasks/claims', [\App\Http\Controllers\TaskClaimController::class, 'index'])->name('tasks.claims');
 
     // VIP routes
     Route::get('/vip', [VipController::class, 'index'])->name('vip.index');

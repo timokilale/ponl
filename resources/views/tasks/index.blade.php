@@ -13,7 +13,7 @@
                         <h3 class="text-lg font-medium mb-2">Your Task Status</h3>
                         <div class="bg-gray-100 p-4 rounded-lg">
                             <p>VIP Level: <span class="font-semibold">{{ $vipLevel->name }}</span></p>
-                            <p>Completed Tasks Today: <span class="font-semibold">{{ $completedTasksToday }} / {{ $vipLevel->daily_tasks_limit }}</span></p>
+                            <p>Claimed Tasks Today: <span class="font-semibold">{{ $claimedTasksToday }} / {{ $vipLevel->daily_tasks_limit }}</span></p>
                             <p>Current Balance: <span class="font-semibold">{{ number_format(auth()->user()->balance, 2) }} USDT</span></p>
 
                             @if(auth()->user()->balance < 30)
@@ -52,7 +52,21 @@
                                         <p class="text-sm mb-4">{{ Str::limit($task->description, 100) }}</p>
                                         <div class="flex justify-between items-center">
                                             <span class="text-green-600 font-semibold">{{ number_format($task->reward, 2) }} USDT</span>
-                                            <a href="{{ route('tasks.show', $task) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">View Details</a>
+                                            <div class="flex space-x-2">
+                                                @if(in_array($task->id, $activeClaimIds))
+                                                    <button disabled class="bg-green-500 text-white px-4 py-2 rounded text-sm cursor-default">Successful</button>
+                                                @else
+                                                    @if($claimedTasksToday < $vipLevel->daily_tasks_limit)
+                                                        <form action="{{ route('tasks.claim', $task) }}" method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded text-sm">Claim</button>
+                                                        </form>
+                                                    @else
+                                                        <button disabled class="bg-gray-400 text-white px-4 py-2 rounded text-sm cursor-default">Daily Limit Reached</button>
+                                                    @endif
+                                                @endif
+                                                <a href="{{ route('tasks.show', $task) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">Details</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
