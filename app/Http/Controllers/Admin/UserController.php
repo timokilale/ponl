@@ -95,7 +95,7 @@ class UserController extends Controller
             'phone_number' => ['nullable', 'string', 'max:20'],
             'balance' => ['nullable', 'numeric', 'min:0'],
             'vip_level_id' => ['required', 'exists:vip_levels,id'],
-            'vip_points' => ['nullable', 'integer', 'min:0'],
+
             'is_admin' => ['boolean'],
             'is_active' => ['boolean'],
         ]);
@@ -107,7 +107,7 @@ class UserController extends Controller
             'phone_number' => $request->phone_number,
             'balance' => $request->balance ?? 0,
             'vip_level_id' => $request->vip_level_id,
-            'vip_points' => $request->vip_points ?? 0,
+
             'referral_code' => strtoupper(substr(md5($request->username . time()), 0, 8)),
             'is_admin' => $request->is_admin ?? false,
             'is_active' => $request->is_active ?? true,
@@ -174,7 +174,7 @@ class UserController extends Controller
             'phone_number' => ['nullable', 'string', 'max:20'],
             'balance' => ['required', 'numeric', 'min:0'],
             'vip_level_id' => ['required', 'exists:vip_levels,id'],
-            'vip_points' => ['required', 'integer', 'min:0'],
+
             'is_admin' => ['boolean'],
             'is_active' => ['boolean'],
         ]);
@@ -185,7 +185,7 @@ class UserController extends Controller
             'phone_number' => $request->phone_number,
             'balance' => $request->balance,
             'vip_level_id' => $request->vip_level_id,
-            'vip_points' => $request->vip_points,
+
             'is_admin' => $request->is_admin ?? false,
             'is_active' => $request->is_active ?? true,
         ];
