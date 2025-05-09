@@ -2,18 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ReferralService;
 use Illuminate\Http\Request;
 
 class ReferralController extends Controller
 {
     /**
+     * @var ReferralService
+     */
+    protected $referralService;
+
+    /**
      * Create a new controller instance.
      *
+     * @param ReferralService $referralService
      * @return void
      */
-    public function __construct()
+    public function __construct(ReferralService $referralService)
     {
-        $this->middleware('auth');
+        $this->referralService = $referralService;
     }
 
     /**
@@ -25,11 +32,11 @@ class ReferralController extends Controller
     {
         $user = auth()->user();
 
-        // Get the user's referral code
-        $referralCode = $user->referral_code;
+        // Ensure the user has a referral code
+        $referralCode = $this->referralService->ensureUserHasReferralCode($user);
 
         // Generate a referral link
-        $referralLink = url('/register') . '?ref=' . $referralCode;
+        $referralLink = $this->referralService->getReferralUrl($user);
 
         // Get the user's referrals
         $referrals = \App\Models\Referral::with('referred')

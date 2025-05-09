@@ -13,7 +13,7 @@ class TaskController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        // Middleware is now applied in the routes file
     }
 
     /**
@@ -77,7 +77,7 @@ class TaskController extends Controller
 
         // Check if the user has reached their daily task limit
         $dailyLimit = $vipLevel->daily_tasks_limit;
-        $canComplete = $completedTasksToday < $dailyLimit;
+        $canComplete = $completedTasksToday < $dailyLimit && $user->balance >= 30;
 
         return view('tasks.show', compact('task', 'completedTasksToday', 'vipLevel', 'dailyLimit', 'canComplete'));
     }

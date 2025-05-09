@@ -24,15 +24,15 @@
                     @endif
 
                     <div class="mb-6">
-                        <p class="mb-2">{{ __('Current Balance') }}: <span class="font-bold">${{ number_format(auth()->user()->balance, 2) }}</span></p>
-                        <p class="text-sm text-gray-600">{{ __('Minimum deposit amount') }}: ${{ number_format($minDepositAmount, 2) }}</p>
+                        <p class="mb-2">{{ __('Current Balance') }}: <span class="font-bold">{{ number_format(auth()->user()->balance, 2) }} USDT</span></p>
+                        <p class="text-sm text-gray-600">{{ __('Minimum deposit amount') }}: {{ number_format($minDepositAmount, 2) }} USDT</p>
                     </div>
 
                     <form method="POST" action="{{ route('payment.coinbase.charge') }}">
                         @csrf
 
                         <div class="mb-4">
-                            <x-input-label for="amount" :value="__('Amount (USD)')" />
+                            <x-input-label for="amount" :value="__('Amount (USDT)')" />
                             <x-text-input id="amount" class="block mt-1 w-full" type="number" name="amount" :value="old('amount')" required step="0.01" min="{{ $minDepositAmount }}" />
                             <x-input-error :messages="$errors->get('amount')" class="mt-2" />
                         </div>

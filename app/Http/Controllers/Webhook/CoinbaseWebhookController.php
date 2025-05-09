@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Webhook;
 
 use App\Http\Controllers\Controller;
+use App\Models\PaymentIntent;
+use App\Models\Transaction;
+use App\Models\User;
+use App\Services\PaymentSplitterService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CoinbaseWebhookController extends Controller
 {
@@ -13,17 +18,23 @@ class CoinbaseWebhookController extends Controller
     protected $coinbaseService;
 
     /**
+     * @var PaymentSplitterService
+     */
+    protected $paymentSplitterService;
+
+    /**
      * Create a new controller instance.
      *
      * @param \App\Services\CoinbaseService $coinbaseService
+     * @param PaymentSplitterService $paymentSplitterService
      * @return void
      */
-    public function __construct(\App\Services\CoinbaseService $coinbaseService)
+    public function __construct(\App\Services\CoinbaseService $coinbaseService, PaymentSplitterService $paymentSplitterService)
     {
         $this->coinbaseService = $coinbaseService;
+        $this->paymentSplitterService = $paymentSplitterService;
 
-        // Disable CSRF protection for webhook endpoints
-        $this->middleware('web')->except('handle');
+        // Middleware is now applied in the routes file
     }
 
     /**
@@ -40,7 +51,7 @@ class CoinbaseWebhookController extends Controller
 
         // Verify the webhook signature
         if (!$this->coinbaseService->verifyWebhookSignature($payload, $signature)) {
-            \Log::warning('Invalid Coinbase webhook signature');
+            Log::warning('Invalid Coinbase webhook signature');
             return response('Invalid signature', 400);
         }
 
@@ -49,7 +60,7 @@ class CoinbaseWebhookController extends Controller
 
         // Check if this is a charge event
         if (!isset($data['event']['type']) || !isset($data['event']['data'])) {
-            \Log::warning('Invalid Coinbase webhook payload');
+            Log::warning('Invalid Coinbase webhook payload');
             return response('Invalid payload', 400);
         }
 
@@ -78,21 +89,22 @@ class CoinbaseWebhookController extends Controller
         $metadata = $chargeData['metadata'] ?? [];
         $userId = $metadata['customer_id'] ?? null;
         $reference = $metadata['reference'] ?? null;
+        $chargeId = $chargeData['id'] ?? 'unknown';
 
         if (!$userId || !$reference) {
-            \Log::warning('Missing user ID or reference in Coinbase charge metadata', [
-                'charge_id' => $chargeData['id'] ?? 'unknown'
+            Log::warning('Missing user ID or reference in Coinbase charge metadata', [
+                'charge_id' => $chargeId
             ]);
             return;
         }
 
         // Get the user
-        $user = \App\Models\User::find($userId);
+        $user = User::find($userId);
 
         if (!$user) {
-            \Log::warning('User not found for Coinbase charge', [
+            Log::warning('User not found for Coinbase charge', [
                 'user_id' => $userId,
-                'charge_id' => $chargeData['id'] ?? 'unknown'
+                'charge_id' => $chargeId
             ]);
             return;
         }
@@ -103,55 +115,110 @@ class CoinbaseWebhookController extends Controller
         $amount = $localPrice['amount'] ?? 0;
 
         if (!$amount) {
-            \Log::warning('Invalid amount in Coinbase charge', [
-                'charge_id' => $chargeData['id'] ?? 'unknown'
+            Log::warning('Invalid amount in Coinbase charge', [
+                'charge_id' => $chargeId
             ]);
             return;
         }
 
         // Check if this transaction has already been processed
-        $existingTransaction = \App\Models\Transaction::where('reference_id', $chargeData['id'])
+        $existingTransaction = Transaction::where('reference_id', $chargeId)
             ->where('reference_type', 'coinbase_charge')
+            ->where('status', 'completed')
             ->first();
 
         if ($existingTransaction) {
-            \Log::info('Coinbase charge already processed', [
-                'charge_id' => $chargeData['id'] ?? 'unknown'
+            Log::info('Coinbase charge already processed', [
+                'charge_id' => $chargeId
             ]);
             return;
         }
 
-        // Update user balance
-        $user->balance += $amount;
-        $user->save();
+        // Find the payment intent
+        $paymentIntent = PaymentIntent::where('reference_id', $chargeId)
+            ->where('reference_type', 'coinbase_charge')
+            ->first();
 
-        // Create transaction record
-        \App\Models\Transaction::create([
-            'user_id' => $user->id,
-            'amount' => $amount,
-            'type' => 'credit',
-            'description' => 'Deposit via Coinbase',
-            'reference_id' => $chargeData['id'],
-            'reference_type' => 'coinbase_charge',
-            'status' => 'completed',
-            'balance_after' => $user->balance,
-            'blockchain_txid' => $chargeData['payments'][0]['transaction_id'] ?? null,
-            'created_at' => now()
-        ]);
+        // Get split details if available
+        $splitDetails = null;
+        if ($paymentIntent && $paymentIntent->metadata) {
+            $metadata = json_decode($paymentIntent->metadata, true);
+            $splitDetails = $metadata['split_details'] ?? null;
+        }
 
-        // Create notification
-        \App\Models\Notification::create([
-            'user_id' => $user->id,
-            'title' => 'Deposit Successful',
-            'message' => "Your deposit of {$amount} USDT has been confirmed and added to your balance.",
-            'type' => 'deposit'
-        ]);
+        // Calculate the main amount and fee amount
+        $mainAmount = $amount;
+        $feeAmount = 0;
 
-        \Log::info('Coinbase charge processed successfully', [
-            'user_id' => $user->id,
-            'amount' => $amount,
-            'charge_id' => $chargeData['id'] ?? 'unknown'
-        ]);
+        if ($splitDetails && isset($splitDetails['fee_amount'])) {
+            $feeAmount = $splitDetails['fee_amount'];
+            $mainAmount = $splitDetails['main_amount'];
+        }
+
+        // Begin transaction
+        \DB::beginTransaction();
+
+        try {
+            // Update user balance with the main amount (not the fee)
+            $user->balance += $mainAmount;
+            $user->save();
+
+            // Create transaction record
+            Transaction::create([
+                'user_id' => $user->id,
+                'amount' => $mainAmount, // Only credit the main amount to the user
+                'type' => 'credit',
+                'description' => 'Deposit via Coinbase',
+                'reference_id' => $chargeId,
+                'reference_type' => 'coinbase_charge',
+                'status' => 'completed',
+                'balance_after' => $user->balance,
+                'blockchain_txid' => $chargeData['payments'][0]['transaction_id'] ?? null,
+                'created_at' => now()
+            ]);
+
+            // If there was a fee, log it
+            if ($feeAmount > 0) {
+                Log::info('Fee collected', [
+                    'user_id' => $user->id,
+                    'charge_id' => $chargeId,
+                    'fee_amount' => $feeAmount,
+                    'secondary_wallet' => $this->paymentSplitterService->getSecondaryWalletAddress()
+                ]);
+            }
+
+            // Update payment intent status
+            if ($paymentIntent) {
+                $paymentIntent->status = 'completed';
+                $paymentIntent->save();
+            }
+
+            // Create notification
+            \App\Models\Notification::create([
+                'user_id' => $user->id,
+                'title' => 'Deposit Successful',
+                'message' => "Your deposit of {$mainAmount} USDT has been confirmed and added to your balance.",
+                'type' => 'deposit'
+            ]);
+
+            \DB::commit();
+
+            Log::info('Coinbase charge processed successfully', [
+                'user_id' => $user->id,
+                'amount' => $amount,
+                'main_amount' => $mainAmount,
+                'fee_amount' => $feeAmount,
+                'charge_id' => $chargeId
+            ]);
+        } catch (\Exception $e) {
+            \DB::rollBack();
+
+            Log::error('Error processing Coinbase charge', [
+                'user_id' => $user->id,
+                'charge_id' => $chargeId,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     /**

@@ -53,7 +53,7 @@ class CoinbaseService
     public function createCharge($amount, $currency, $metadata, $redirectUrl, $cancelUrl)
     {
         try {
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'X-CC-Api-Key' => $this->apiKey,
                 'X-CC-Version' => '2018-03-22',
                 'Content-Type' => 'application/json',
@@ -99,7 +99,7 @@ class CoinbaseService
     public function getCharge($chargeId)
     {
         try {
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'X-CC-Api-Key' => $this->apiKey,
                 'X-CC-Version' => '2018-03-22',
                 'Content-Type' => 'application/json',

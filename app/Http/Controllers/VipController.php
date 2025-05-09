@@ -13,7 +13,7 @@ class VipController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        // Middleware is now applied in the routes file
     }
 
     /**
@@ -26,27 +26,32 @@ class VipController extends Controller
         $user = auth()->user();
 
         // Get all VIP levels
-        $vipLevels = \App\Models\VipLevel::orderBy('points_required')->get();
+        $vipLevels = \App\Models\VipLevel::orderBy('deposit_required')->get();
 
         // Get the user's current VIP level
         $currentVipLevel = $user->vipLevel;
 
         // Get the next VIP level
-        $nextVipLevel = \App\Models\VipLevel::where('points_required', '>', $currentVipLevel->points_required)
-            ->orderBy('points_required')
+        $nextVipLevel = \App\Models\VipLevel::where('deposit_required', '>', $currentVipLevel->deposit_required)
+            ->orderBy('deposit_required')
             ->first();
 
         // Calculate progress to next level
         $progress = 0;
         if ($nextVipLevel) {
-            $currentPoints = $user->vip_points;
-            $currentLevelPoints = $currentVipLevel->points_required;
-            $nextLevelPoints = $nextVipLevel->points_required;
+            $totalDeposits = \App\Models\Transaction::where('user_id', $user->id)
+                ->where('type', 'credit')
+                ->where('reference_type', 'deposit')
+                ->where('status', 'completed')
+                ->sum('amount');
 
-            $pointsNeeded = $nextLevelPoints - $currentLevelPoints;
-            $pointsGained = $currentPoints - $currentLevelPoints;
+            $currentLevelDeposit = $currentVipLevel->deposit_required;
+            $nextLevelDeposit = $nextVipLevel->deposit_required;
 
-            $progress = ($pointsGained / $pointsNeeded) * 100;
+            $depositNeeded = $nextLevelDeposit - $currentLevelDeposit;
+            $depositMade = $totalDeposits - $currentLevelDeposit;
+
+            $progress = ($depositMade / $depositNeeded) * 100;
             $progress = min(100, max(0, $progress)); // Ensure progress is between 0 and 100
         }
 

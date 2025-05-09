@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => bcrypt('password'),
             'is_admin' => true,
-            'vip_level_id' => 5, // Diamond level
+            'vip_level_id' => 10 // Highest VIP level
         ]);
 
         // Seed settings

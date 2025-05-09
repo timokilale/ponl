@@ -18,6 +18,9 @@
                     <x-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')">
                         {{ __('Tasks') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('payment.deposit')" :active="request()->routeIs('payment.deposit')">
+                        {{ __('Deposit') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('vip.index')" :active="request()->routeIs('vip.*')">
                         {{ __('VIP') }}
                     </x-nav-link>
@@ -92,6 +95,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')">
                 {{ __('Tasks') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('payment.deposit')" :active="request()->routeIs('payment.deposit')">
+                {{ __('Deposit') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('vip.index')" :active="request()->routeIs('vip.*')">
                 {{ __('VIP') }}

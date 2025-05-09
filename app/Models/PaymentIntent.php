@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Notification extends Model
+class PaymentIntent extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -13,10 +13,13 @@ class Notification extends Model
      */
     protected $fillable = [
         'user_id',
-        'title',
-        'message',
-        'type',
-        'is_read',
+        'amount',
+        'reference_id',
+        'reference_type',
+        'status',
+        'metadata',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -25,13 +28,20 @@ class Notification extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'is_read' => 'boolean',
+        'amount' => 'decimal:6',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
     /**
-     * Get the user that owns this notification.
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = true;
+
+    /**
+     * Get the user that owns this payment intent.
      */
     public function user()
     {

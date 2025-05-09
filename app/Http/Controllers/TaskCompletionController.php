@@ -13,7 +13,7 @@ class TaskCompletionController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        // Middleware is now applied in the routes file
     }
 
     /**
@@ -54,6 +54,12 @@ class TaskCompletionController extends Controller
         if ($task->vip_level_required > $user->vip_level_id) {
             return redirect()->route('tasks.index')
                 ->with('error', 'You do not have the required VIP level to complete this task.');
+        }
+
+        // Check if the user has the minimum required balance (30 USDT)
+        if ($user->balance < 30) {
+            return redirect()->route('tasks.show', $task)
+                ->with('error', 'You need a minimum balance of 30 USDT to complete tasks. Please make a deposit.');
         }
 
         // Check if the task is active

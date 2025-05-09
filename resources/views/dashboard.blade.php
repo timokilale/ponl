@@ -21,7 +21,7 @@
                         <div class="bg-purple-50 rounded-lg p-4 border border-purple-100">
                             <div class="text-sm text-gray-600">VIP Level</div>
                             <div class="text-xl font-bold text-purple-600">{{ auth()->user()->vipLevel->name }}</div>
-                            <div class="text-xs text-gray-500">{{ number_format(auth()->user()->vip_points) }} points</div>
+                           <!-- <div class="text-xs text-gray-500">{{ number_format(auth()->user()->vip_points) }} points</div>-->
                         </div>
 
                         <div class="bg-green-50 rounded-lg p-4 border border-green-100">
@@ -36,6 +36,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Referral Link -->
+            <x-referral-link-card :referralUrl="$referralUrl" :totalReferrals="$totalReferrals" :pendingRewards="$pendingRewards" />
 
             <!-- Quick Actions -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -87,7 +90,11 @@
                                 @foreach (\App\Models\Transaction::where('user_id', auth()->id())->orderBy('created_at', 'desc')->take(5)->get() as $transaction)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $transaction->created_at->format('M d, Y H:i') }}
+                                            @if($transaction->created_at instanceof \Carbon\Carbon)
+                                                {{ $transaction->created_at->format('M d, Y H:i') }}
+                                            @else
+                                                {{ $transaction->created_at ?? 'N/A' }}
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-900">
                                             {{ $transaction->description }}
@@ -129,7 +136,13 @@
                                         @endif
                                         <h4 class="font-medium text-sm">{{ $notification->title }}</h4>
                                     </div>
-                                    <span class="text-xs text-gray-500">{{ $notification->created_at->diffForHumans() }}</span>
+                                    <span class="text-xs text-gray-500">
+                                        @if($notification->created_at instanceof \Carbon\Carbon)
+                                            {{ $notification->created_at->diffForHumans() }}
+                                        @else
+                                            {{ $notification->created_at ?? 'N/A' }}
+                                        @endif
+                                    </span>
                                 </div>
                                 <div class="p-3">
                                     <p class="text-sm text-gray-700">{{ Str::limit($notification->message, 100) }}</p>

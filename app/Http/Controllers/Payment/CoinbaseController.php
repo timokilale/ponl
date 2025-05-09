@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
 use App\Services\CoinbaseService;
+use App\Services\PaymentSplitterService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CoinbaseController extends Controller
@@ -15,15 +17,22 @@ class CoinbaseController extends Controller
     protected $coinbaseService;
 
     /**
+     * @var \App\Services\PaymentSplitterService
+     */
+    protected $paymentSplitterService;
+
+    /**
      * Create a new controller instance.
      *
      * @param \App\Services\CoinbaseService $coinbaseService
+     * @param \App\Services\PaymentSplitterService $paymentSplitterService
      * @return void
      */
-    public function __construct(CoinbaseService $coinbaseService)
+    public function __construct(CoinbaseService $coinbaseService, PaymentSplitterService $paymentSplitterService)
     {
-        $this->middleware('auth');
+        // Middleware is now applied in the routes file
         $this->coinbaseService = $coinbaseService;
+        $this->paymentSplitterService = $paymentSplitterService;
     }
 
     /**
@@ -60,7 +69,13 @@ class CoinbaseController extends Controller
         ]);
 
         $amount = $request->amount;
-        $currency = 'USD';
+        $currency = 'USDT';
+
+        // Get split details but don't show to user
+        $splitDetails = $this->paymentSplitterService->getSplitDetails($amount);
+
+        // Only log the split details for backend tracking
+        Log::info('Payment split details (hidden from user)', $splitDetails);
 
         // Generate a unique reference
         $reference = 'DEP-' . Str::random(10);
@@ -70,6 +85,7 @@ class CoinbaseController extends Controller
             'customer_id' => $user->id,
             'customer_email' => $user->email,
             'reference' => $reference,
+            'amount' => $amount,
         ];
 
         // Create success and cancel URLs
@@ -77,11 +93,26 @@ class CoinbaseController extends Controller
         $cancelUrl = route('payment.coinbase.cancel', ['reference' => $reference]);
 
         // Create the charge
+        Log::info('Creating Coinbase charge', [
+            'amount' => $amount,
+            'currency' => $currency,
+            'metadata' => $metadata,
+            'successUrl' => $successUrl,
+            'cancelUrl' => $cancelUrl
+        ]);
+
+        // Use the full amount for the charge (fee will be handled internally)
         $charge = $this->coinbaseService->createCharge($amount, $currency, $metadata, $successUrl, $cancelUrl);
 
         if (!$charge) {
+            Log::error('Failed to create Coinbase charge');
             return redirect()->back()->with('error', 'Failed to create payment. Please try again later.');
         }
+
+        Log::info('Coinbase charge created successfully', [
+            'charge_id' => $charge['id'],
+            'hosted_url' => $charge['hosted_url']
+        ]);
 
         // Store the charge details in the session
         session()->put('coinbase_charge', [
@@ -89,19 +120,23 @@ class CoinbaseController extends Controller
             'amount' => $amount,
             'reference' => $reference,
             'created_at' => now(),
+            'split_details' => $splitDetails, // Store split details for backend processing
         ]);
 
-        // Create a pending transaction record
-        \App\Models\Transaction::create([
+        // Create a payment intent (but don't create a transaction yet)
+        $result = $this->paymentSplitterService->processPaymentWithSplit(
+            $user->id,
+            $amount,
+            $charge['id'],
+            'Deposit via Coinbase (pending)'
+        );
+
+        // Log the payment intent creation
+        Log::info('Payment intent created', [
             'user_id' => $user->id,
+            'charge_id' => $charge['id'],
             'amount' => $amount,
-            'type' => 'credit',
-            'description' => 'Deposit via Coinbase (pending)',
-            'reference_id' => $charge['id'],
-            'reference_type' => 'coinbase_charge',
-            'status' => 'pending',
-            'balance_after' => $user->balance,
-            'created_at' => now()
+            'split_details' => $splitDetails
         ]);
 
         // Redirect to the hosted checkout page

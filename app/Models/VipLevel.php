@@ -13,7 +13,7 @@ class VipLevel extends Model
      */
     protected $fillable = [
         'name',
-        'points_required',
+        'deposit_required',
         'reward_multiplier',
         'daily_tasks_limit',
         'withdrawal_fee_discount',
@@ -25,7 +25,7 @@ class VipLevel extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'points_required' => 'integer',
+        'deposit_required' => 'decimal:2',
         'reward_multiplier' => 'decimal:2',
         'daily_tasks_limit' => 'integer',
         'withdrawal_fee_discount' => 'decimal:2',

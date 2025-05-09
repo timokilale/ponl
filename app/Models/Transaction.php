@@ -26,6 +26,13 @@ class Transaction extends Model
     ];
 
     /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = true;
+
+    /**
      * The attributes that should be cast.
      *
      * @var array<string, string>
@@ -33,22 +40,8 @@ class Transaction extends Model
     protected $casts = [
         'amount' => 'decimal:6',
         'balance_after' => 'decimal:6',
-    ];
-
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = false;
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = [
-        'created_at',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**

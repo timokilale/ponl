@@ -17,7 +17,20 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $user = auth()->user();
+    $referralService = app(App\Services\ReferralService::class);
+
+    // Ensure user has a referral code
+    $referralCode = $referralService->ensureUserHasReferralCode($user);
+
+    // Get referral URL
+    $referralUrl = $referralService->getReferralUrl($user);
+
+    // Get referral stats
+    $totalReferrals = \App\Models\Referral::where('referrer_id', $user->id)->count();
+    $pendingRewards = 0; // You can calculate this based on your business logic
+
+    return view('dashboard', compact('referralUrl', 'totalReferrals', 'pendingRewards'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -66,4 +79,17 @@ Route::post('/webhooks/coinbase', [CoinbaseWebhookController::class, 'handle'])-
 
 // Admin routes are now in admin.php
 
+// Test admin route
+Route::middleware('auth')->middleware('admin')->prefix('admin-test')->name('admin.test.')->group(function () {
+    Route::get('/', function () {
+        return response()->json(['message' => 'Admin test route works!']);
+    })->name('index');
+});
+
+// Direct admin route
+Route::get('/admin-direct', function() {
+    return view('admin.dashboard');
+})->middleware('auth')->middleware('admin')->name('admin.direct');
+
 require __DIR__.'/auth.php';
+require __DIR__.'/admin.php';
