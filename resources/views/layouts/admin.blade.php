@@ -7,6 +7,9 @@
 
     <title>{{ config('app.name', 'Laravel') }} - Admin</title>
 
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('images/pnzLogo.jpg') }}" type="image/jpeg">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -25,7 +28,7 @@
                         <!-- Logo -->
                         <div class="shrink-0 flex items-center">
                             <a href="{{ route('admin.dashboard') }}" class="text-white">
-                                <img src="{{ asset('storage/pnzLogo.jpg') }}" alt="Logo" class="h-9 w-auto" />
+                                <img src="{{ asset('images/pnzLogo.jpg') }}" alt="Logo" class="h-9 w-auto" />
                             </a>
                         </div>
 
