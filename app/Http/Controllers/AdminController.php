@@ -13,8 +13,7 @@ class AdminController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('admin');
+        // Middleware is now applied in the routes file
     }
 
     /**

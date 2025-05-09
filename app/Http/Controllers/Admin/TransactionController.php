@@ -17,7 +17,7 @@ class TransactionController extends Controller
      */
     public function __construct()
     {
-        $this->middleware(['auth', 'admin']);
+        // Middleware is now applied in the routes file
     }
 
     /**

@@ -25,7 +25,7 @@
                         <!-- Logo -->
                         <div class="shrink-0 flex items-center">
                             <a href="{{ route('admin.dashboard') }}" class="text-white font-bold text-xl">
-                                {{ config('app.name', 'Laravel') }} Admin
+                                <img src="{{ asset('storage/pnzLogo.jpg') }}" alt="pnzLogo" class="h-9 w-auto" /> Admin
                             </a>
                         </div>
 
