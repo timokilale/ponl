@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskCompletionController;
+use App\Http\Controllers\TaskClaimController;
 use App\Http\Controllers\VipController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\WithdrawalController;
@@ -41,15 +42,19 @@ Route::middleware('auth')->group(function () {
 
     // Task routes
     Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
-    Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
 
     // Task completion routes (legacy)
-    Route::post('/tasks/{task}/complete', [TaskCompletionController::class, 'store'])->name('tasks.complete');
     Route::get('/tasks/completions', [TaskCompletionController::class, 'index'])->name('tasks.completions');
 
     // Task claim routes
-    Route::post('/tasks/{task}/claim', [\App\Http\Controllers\TaskClaimController::class, 'claim'])->name('tasks.claim');
-    Route::get('/tasks/claims', [\App\Http\Controllers\TaskClaimController::class, 'index'])->name('tasks.claims');
+    Route::get('/tasks/claims', [TaskClaimController::class, 'index'])->name('tasks.claims');
+
+    // Task action routes
+    Route::post('/tasks/{task}/complete', [TaskCompletionController::class, 'store'])->name('tasks.complete');
+    Route::post('/tasks/{task}/claim', [TaskClaimController::class, 'claim'])->name('tasks.claim');
+
+    // Task detail route (must be after other /tasks/xxx routes)
+    Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
 
     // VIP routes
     Route::get('/vip', [VipController::class, 'index'])->name('vip.index');
