@@ -60,7 +60,7 @@ class UserController extends Controller
         $query->orderBy($orderBy, $orderDir);
 
         // Get VIP levels for filter
-        $vipLevels = VipLevel::orderBy('points_required')->get();
+        $vipLevels = VipLevel::orderBy('deposit_required')->get();
 
         // Paginate results
         $users = $query->paginate(15)->withQueryString();
@@ -75,7 +75,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        $vipLevels = VipLevel::orderBy('points_required')->get();
+        $vipLevels = VipLevel::orderBy('deposit_required')->get();
 
         return view('admin.users.create', compact('vipLevels'));
     }
@@ -153,7 +153,7 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $vipLevels = VipLevel::orderBy('points_required')->get();
+        $vipLevels = VipLevel::orderBy('deposit_required')->get();
 
         return view('admin.users.edit', compact('user', 'vipLevels'));
     }

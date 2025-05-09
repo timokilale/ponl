@@ -27,7 +27,7 @@ class VipController extends Controller
      */
     public function index()
     {
-        $vipLevels = VipLevel::orderBy('points_required')->get();
+        $vipLevels = VipLevel::orderBy('deposit_required')->get();
 
         // Get user counts for each VIP level
         foreach ($vipLevels as $vipLevel) {
@@ -57,7 +57,7 @@ class VipController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:vip_levels'],
-            'points_required' => ['required', 'integer', 'min:0', 'unique:vip_levels'],
+            'deposit_required' => ['required', 'numeric', 'min:0', 'unique:vip_levels'],
             'reward_multiplier' => ['required', 'numeric', 'min:1'],
             'daily_tasks_limit' => ['required', 'integer', 'min:1'],
             'withdrawal_fee_discount' => ['required', 'numeric', 'min:0', 'max:1'],
@@ -65,7 +65,7 @@ class VipController extends Controller
 
         $vipLevel = VipLevel::create([
             'name' => $request->name,
-            'points_required' => $request->points_required,
+            'deposit_required' => $request->deposit_required,
             'reward_multiplier' => $request->reward_multiplier,
             'daily_tasks_limit' => $request->daily_tasks_limit,
             'withdrawal_fee_discount' => $request->withdrawal_fee_discount,
@@ -124,7 +124,7 @@ class VipController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('vip_levels')->ignore($vipLevel->id)],
-            'points_required' => ['required', 'integer', 'min:0', Rule::unique('vip_levels')->ignore($vipLevel->id)],
+            'deposit_required' => ['required', 'numeric', 'min:0', Rule::unique('vip_levels')->ignore($vipLevel->id)],
             'reward_multiplier' => ['required', 'numeric', 'min:1'],
             'daily_tasks_limit' => ['required', 'integer', 'min:1'],
             'withdrawal_fee_discount' => ['required', 'numeric', 'min:0', 'max:1'],
@@ -132,7 +132,7 @@ class VipController extends Controller
 
         $vipLevel->update([
             'name' => $request->name,
-            'points_required' => $request->points_required,
+            'deposit_required' => $request->deposit_required,
             'reward_multiplier' => $request->reward_multiplier,
             'daily_tasks_limit' => $request->daily_tasks_limit,
             'withdrawal_fee_discount' => $request->withdrawal_fee_discount,

@@ -58,7 +58,7 @@ class TaskController extends Controller
         $query->orderBy($orderBy, $orderDir);
 
         // Get VIP levels for filter
-        $vipLevels = VipLevel::orderBy('points_required')->get();
+        $vipLevels = VipLevel::orderBy('deposit_required')->get();
 
         // Paginate results
         $tasks = $query->paginate(15)->withQueryString();
@@ -73,7 +73,7 @@ class TaskController extends Controller
      */
     public function create()
     {
-        $vipLevels = VipLevel::orderBy('points_required')->get();
+        $vipLevels = VipLevel::orderBy('deposit_required')->get();
 
         return view('admin.tasks.create', compact('vipLevels'));
     }
@@ -155,7 +155,7 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
-        $vipLevels = VipLevel::orderBy('points_required')->get();
+        $vipLevels = VipLevel::orderBy('deposit_required')->get();
 
         return view('admin.tasks.edit', compact('task', 'vipLevels'));
     }
