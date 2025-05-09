@@ -15,6 +15,26 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')">
+                        {{ __('Tasks') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('vip.index')" :active="request()->routeIs('vip.*')">
+                        {{ __('VIP') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('referrals.index')" :active="request()->routeIs('referrals.*')">
+                        {{ __('Referrals') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('withdrawals.index')" :active="request()->routeIs('withdrawals.*')">
+                        {{ __('Withdrawals') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')">
+                        {{ __('Transactions') }}
+                    </x-nav-link>
+                    @if (Auth::user()->is_admin)
+                    <x-nav-link :href="route('admin.dashboard')" class="text-indigo-600 font-bold">
+                        {{ __('Admin') }}
+                    </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -23,7 +43,7 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
+                            <div>{{ Auth::user()->username }}</div>
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -70,12 +90,32 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')">
+                {{ __('Tasks') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('vip.index')" :active="request()->routeIs('vip.*')">
+                {{ __('VIP') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('referrals.index')" :active="request()->routeIs('referrals.*')">
+                {{ __('Referrals') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('withdrawals.index')" :active="request()->routeIs('withdrawals.*')">
+                {{ __('Withdrawals') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')">
+                {{ __('Transactions') }}
+            </x-responsive-nav-link>
+            @if (Auth::user()->is_admin)
+            <x-responsive-nav-link :href="route('admin.dashboard')" class="text-indigo-600 font-bold">
+                {{ __('Admin') }}
+            </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                <div class="font-medium text-base text-gray-800">{{ Auth::user()->username }}</div>
                 <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
             </div>
 

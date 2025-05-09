@@ -64,40 +64,6 @@ Route::middleware('auth')->group(function () {
 // Webhook routes
 Route::post('/webhooks/coinbase', [CoinbaseWebhookController::class, 'handle'])->name('webhooks.coinbase');
 
-// Admin routes
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-
-    // User management
-    Route::resource('users', App\Http\Controllers\Admin\UserController::class);
-
-    // Task management
-    Route::resource('tasks', App\Http\Controllers\Admin\TaskController::class);
-
-    // Task completion management
-    Route::resource('task-completions', App\Http\Controllers\Admin\TaskCompletionController::class)->only(['index', 'show', 'update']);
-    Route::patch('/task-completions/{taskCompletion}/approve', [App\Http\Controllers\Admin\TaskCompletionController::class, 'approve'])->name('task-completions.approve');
-    Route::patch('/task-completions/{taskCompletion}/reject', [App\Http\Controllers\Admin\TaskCompletionController::class, 'reject'])->name('task-completions.reject');
-
-    // VIP management
-    Route::resource('vip-levels', App\Http\Controllers\Admin\VipController::class);
-
-    // Transaction management
-    Route::resource('transactions', App\Http\Controllers\Admin\TransactionController::class)->only(['index', 'show']);
-
-    // Withdrawal management
-    Route::resource('withdrawals', App\Http\Controllers\Admin\WithdrawalController::class)->only(['index', 'show', 'update']);
-    Route::patch('/withdrawals/{withdrawal}/approve', [App\Http\Controllers\Admin\WithdrawalController::class, 'approve'])->name('withdrawals.approve');
-    Route::patch('/withdrawals/{withdrawal}/reject', [App\Http\Controllers\Admin\WithdrawalController::class, 'reject'])->name('withdrawals.reject');
-
-    // Referral management
-    Route::resource('referrals', App\Http\Controllers\Admin\ReferralController::class)->only(['index', 'show']);
-
-    // Setting management
-    Route::resource('settings', App\Http\Controllers\Admin\SettingController::class)->only(['index', 'update']);
-
-    // Social link management
-    Route::resource('social-links', App\Http\Controllers\Admin\SocialLinkController::class);
-});
+// Admin routes are now in admin.php
 
 require __DIR__.'/auth.php';

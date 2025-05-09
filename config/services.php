@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'coinbase' => [
+        'api_key' => env('COINBASE_API_KEY'),
+        'api_secret' => env('COINBASE_API_SECRET'),
+        'api_url' => env('COINBASE_API_URL', 'https://api.commerce.coinbase.com'),
+        'webhook_secret' => env('COINBASE_WEBHOOK_SECRET'),
+    ],
+
 ];

@@ -21,6 +21,9 @@ class CoinbaseWebhookController extends Controller
     public function __construct(\App\Services\CoinbaseService $coinbaseService)
     {
         $this->coinbaseService = $coinbaseService;
+
+        // Disable CSRF protection for webhook endpoints
+        $this->middleware('web')->except('handle');
     }
 
     /**

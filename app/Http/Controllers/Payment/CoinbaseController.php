@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
+use App\Services\CoinbaseService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CoinbaseController extends Controller
 {
@@ -18,7 +20,7 @@ class CoinbaseController extends Controller
      * @param \App\Services\CoinbaseService $coinbaseService
      * @return void
      */
-    public function __construct(\App\Services\CoinbaseService $coinbaseService)
+    public function __construct(CoinbaseService $coinbaseService)
     {
         $this->middleware('auth');
         $this->coinbaseService = $coinbaseService;
@@ -31,76 +33,103 @@ class CoinbaseController extends Controller
      */
     public function showDepositForm()
     {
-        return view('payment.deposit');
+        $user = auth()->user();
+
+        // Get minimum deposit amount from settings
+        $minDepositAmount = \App\Models\Setting::getValue('min_deposit_amount', 10);
+
+        return view('payment.deposit', compact('minDepositAmount'));
     }
 
     /**
-     * Create a new deposit charge.
+     * Create a Coinbase charge.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function createCharge(Request $request)
     {
+        $user = auth()->user();
+
+        // Get minimum deposit amount from settings
+        $minDepositAmount = \App\Models\Setting::getValue('min_deposit_amount', 10);
+
+        // Validate the request
         $request->validate([
-            'amount' => 'required|numeric|min:10',
+            'amount' => "required|numeric|min:{$minDepositAmount}",
         ]);
 
-        $user = auth()->user();
-        $amount = $request->input('amount');
+        $amount = $request->amount;
+        $currency = 'USD';
 
-        $reference = 'DEP-' . time() . '-' . $user->id;
+        // Generate a unique reference
+        $reference = 'DEP-' . Str::random(10);
 
-        $chargeData = [
-            'name' => 'Account Deposit',
-            'description' => 'Deposit to ' . $user->username . ' account',
-            'amount' => $amount,
-            'currency' => 'USDT',
-            'userId' => $user->id,
-            'username' => $user->username,
+        // Create metadata for the charge
+        $metadata = [
+            'customer_id' => $user->id,
+            'customer_email' => $user->email,
             'reference' => $reference,
-            'redirectUrl' => route('payment.coinbase.success'),
-            'cancelUrl' => route('payment.coinbase.cancel')
         ];
 
-        $result = $this->coinbaseService->createCharge($chargeData);
+        // Create success and cancel URLs
+        $successUrl = route('payment.coinbase.success', ['reference' => $reference]);
+        $cancelUrl = route('payment.coinbase.cancel', ['reference' => $reference]);
 
-        if (!$result['success']) {
-            return back()->with('error', 'Failed to create payment: ' . ($result['error'] ?? 'Unknown error'));
+        // Create the charge
+        $charge = $this->coinbaseService->createCharge($amount, $currency, $metadata, $successUrl, $cancelUrl);
+
+        if (!$charge) {
+            return redirect()->back()->with('error', 'Failed to create payment. Please try again later.');
         }
 
-        // Store charge info in session
-        session(['coinbase_charge' => [
-            'id' => $result['chargeId'],
-            'code' => $result['code'],
+        // Store the charge details in the session
+        session()->put('coinbase_charge', [
+            'id' => $charge['id'],
             'amount' => $amount,
-            'reference' => $reference
-        ]]);
+            'reference' => $reference,
+            'created_at' => now(),
+        ]);
 
-        return redirect($result['hostedUrl']);
+        // Create a pending transaction record
+        \App\Models\Transaction::create([
+            'user_id' => $user->id,
+            'amount' => $amount,
+            'type' => 'credit',
+            'description' => 'Deposit via Coinbase (pending)',
+            'reference_id' => $charge['id'],
+            'reference_type' => 'coinbase_charge',
+            'status' => 'pending',
+            'balance_after' => $user->balance,
+            'created_at' => now()
+        ]);
+
+        // Redirect to the hosted checkout page
+        return redirect($charge['hosted_url']);
     }
 
     /**
      * Handle successful payment.
      *
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\View\View
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function success(Request $request)
     {
-        $chargeData = session('coinbase_charge');
+        $reference = $request->query('reference');
+        $chargeData = session()->get('coinbase_charge');
 
-        if (!$chargeData) {
-            return redirect()->route('payment.deposit')->with('error', 'Payment information not found');
+        if (!$chargeData || $chargeData['reference'] !== $reference) {
+            return redirect()->route('payment.deposit')->with('error', 'Invalid payment reference.');
         }
 
-        // Clear the session data
+        // Clear the charge data from the session
         session()->forget('coinbase_charge');
 
-        return view('payment.success', [
-            'amount' => $chargeData['amount'],
-            'reference' => $chargeData['reference']
-        ]);
+        // Note: The actual payment processing is done by the webhook
+        // This is just a success page for the user
+
+        return redirect()->route('transactions.index')->with('success', 'Your deposit is being processed. It will be credited to your account once confirmed.');
     }
 
     /**
@@ -111,8 +140,20 @@ class CoinbaseController extends Controller
      */
     public function cancel(Request $request)
     {
-        session()->forget('coinbase_charge');
+        $reference = $request->query('reference');
+        $chargeData = session()->get('coinbase_charge');
 
-        return redirect()->route('payment.deposit')->with('info', 'Payment was cancelled');
+        if ($chargeData && $chargeData['reference'] === $reference) {
+            // Clear the charge data from the session
+            session()->forget('coinbase_charge');
+
+            // Update the transaction status to cancelled
+            \App\Models\Transaction::where('reference_id', $chargeData['id'])
+                ->where('reference_type', 'coinbase_charge')
+                ->where('status', 'pending')
+                ->update(['status' => 'cancelled']);
+        }
+
+        return redirect()->route('payment.deposit')->with('info', 'Payment was cancelled.');
     }
 }

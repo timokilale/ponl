@@ -16,7 +16,7 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action. Admin access required.');
+            return redirect()->route('dashboard')->with('error', 'You do not have permission to access this page.');
         }
 
         return $next($request);
